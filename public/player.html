@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bingo Patologia</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="player-page">
+
+  <!-- Header -->
+  <header class="player-header">
+    <div class="ph-left">
+      <svg width="28" height="28" viewBox="0 0 44 44" fill="none">
+        <rect x="2"  y="2"  width="12" height="12" rx="3" fill="#f9a8d4" opacity="0.9"/>
+        <rect x="16" y="2"  width="12" height="12" rx="3" fill="#f9a8d4" opacity="0.5"/>
+        <rect x="30" y="2"  width="12" height="12" rx="3" fill="#f9a8d4" opacity="0.25"/>
+        <rect x="2"  y="16" width="12" height="12" rx="3" fill="#f9a8d4" opacity="0.5"/>
+        <rect x="16" y="16" width="12" height="12" rx="3" fill="#fce7f3"/>
+        <rect x="30" y="16" width="12" height="12" rx="3" fill="#f9a8d4" opacity="0.5"/>
+        <rect x="2"  y="30" width="12" height="12" rx="3" fill="#f9a8d4" opacity="0.25"/>
+        <rect x="16" y="30" width="12" height="12" rx="3" fill="#f9a8d4" opacity="0.5"/>
+        <rect x="30" y="30" width="12" height="12" rx="3" fill="#f9a8d4" opacity="0.9"/>
+      </svg>
+      <div class="ph-title">
+        <span class="ph-name">Bingo Patologia</span>
+        <span class="ph-sub">Patologia Geral &amp; Apendicite</span>
+      </div>
+    </div>
+    <div class="ph-badge">
+      <div class="ph-avatar">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+          <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" fill="#fce7f3"/>
+        </svg>
+      </div>
+      <span id="playerName"></span>
+    </div>
+  </header>
+
+  <div class="player-container">
+
+    <!-- Waiting -->
+    <div id="waitingBox" class="waiting-box">
+      <div class="waiting-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="#f9a8d4" stroke-width="2"/>
+          <path d="M12 7v5l3 3" stroke="#f9a8d4" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <p class="waiting-title">Aguardando pergunta...</p>
+        <p class="waiting-sub">O monitor irá sortear em breve</p>
+      </div>
+    </div>
+
+    <!-- Question -->
+    <div id="questionBox" class="question-box hidden">
+      <div class="question-top">
+        <span class="question-label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="#f9a8d4" stroke-width="2.5"/>
+            <path d="M12 8v4M12 16h.01" stroke="#f9a8d4" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+          Pergunta
+        </span>
+        <span class="question-num" id="questionNum">#1</span>
+      </div>
+      <p id="currentQuestion"></p>
+    </div>
+
+    <!-- BINGO header -->
+    <div class="card-header">
+      <span>B</span><span>I</span><span>N</span><span>G</span><span>O</span>
+    </div>
+
+    <!-- Cartela -->
+    <div class="card-wrapper">
+      <div id="bingoCard" class="bingo-card"></div>
+    </div>
+
+    <!-- Botão BINGO -->
+    <div class="bingo-btn-wrap">
+      <button id="bingoBtn" class="bingo-btn" disabled>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/>
+        </svg>
+        BINGO!
+      </button>
+    </div>
+
+    <p id="bingoMsg" class="bingo-msg"></p>
+
+    <!-- Resultado -->
+    <div id="resultSection" class="result-section hidden">
+      <div class="section-title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M9 11l3 3L22 4" stroke="#f9a8d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="#f9a8d4" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Seu Resultado
+      </div>
+      <div id="resultList"></div>
+    </div>
+
+    <!-- Ranking -->
+    <div id="rankingSection" class="ranking-section hidden">
+      <div class="section-title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#be185d"/>
+        </svg>
+        Ranking Final
+      </div>
+      <div id="rankingList"></div>
+    </div>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="player.js"></script>
+</body>
+</html>

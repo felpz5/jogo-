@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bingo — Monitor</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="monitor-page">
+  <header class="player-header">
+    <div class="ph-left">
+      <svg width="28" height="28" viewBox="0 0 44 44" fill="none">
+        <rect x="2"  y="2"  width="12" height="12" rx="3" fill="#f9a8d4" opacity="0.9"/>
+        <rect x="16" y="2"  width="12" height="12" rx="3" fill="#f9a8d4" opacity="0.5"/>
+        <rect x="30" y="2"  width="12" height="12" rx="3" fill="#f9a8d4" opacity="0.25"/>
+        <rect x="2"  y="16" width="12" height="12" rx="3" fill="#f9a8d4" opacity="0.5"/>
+        <rect x="16" y="16" width="12" height="12" rx="3" fill="#fce7f3"/>
+        <rect x="30" y="16" width="12" height="12" rx="3" fill="#f9a8d4" opacity="0.5"/>
+        <rect x="2"  y="30" width="12" height="12" rx="3" fill="#f9a8d4" opacity="0.25"/>
+        <rect x="16" y="30" width="12" height="12" rx="3" fill="#f9a8d4" opacity="0.5"/>
+        <rect x="30" y="30" width="12" height="12" rx="3" fill="#f9a8d4" opacity="0.9"/>
+      </svg>
+      <div class="ph-title">
+        <span class="ph-name">Bingo Patologia</span>
+        <span class="ph-sub">Painel do Monitor</span>
+      </div>
+    </div>
+    <div class="ph-badge">
+      <div class="ph-avatar">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+          <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" fill="#fce7f3"/>
+        </svg>
+      </div>
+      <span id="monitorName"></span>
+    </div>
+  </header>
+
+  <div class="monitor-container">
+
+    <!-- Stats -->
+    <div class="monitor-stats">
+      <div class="stat-card">
+        <div class="stat-icon blue">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="#3b82f6" stroke-width="2"/>
+            <path d="M12 8v4M12 16h.01" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value" id="statQuestions">0</div>
+          <div class="stat-label">Perguntas Sorteadas</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purple">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="9" cy="7" r="4" stroke="#8b5cf6" stroke-width="2"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value" id="statPlayers">—</div>
+          <div class="stat-label">Jogadores</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon orange">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="#f97316" stroke-width="2" stroke-linejoin="round" fill="rgba(249,115,22,0.15)"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value" id="statAttempts">0</div>
+          <div class="stat-label">Tentativas de Bingo</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="#16a34a" stroke-width="2" stroke-linecap="round"/>
+            <path d="M22 4L12 14.01l-3-3" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value" id="statStatus">Ativo</div>
+          <div class="stat-label">Status do Jogo</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="monitor-grid">
+
+      <!-- Pergunta atual -->
+      <div class="panel panel-main">
+        <div class="panel-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="#94a3b8" stroke-width="2"/>
+            <path d="M12 8v4M12 16h.01" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Pergunta Atual
+        </div>
+        <div class="question-box" id="currentQuestionBox">
+          <div class="question-label">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="#6366f1" stroke-width="2"/>
+              <path d="M12 8v4M12 16h.01" stroke="#6366f1" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Pergunta
+            <span class="question-num" id="questionCounter">#0</span>
+          </div>
+          <p id="currentQuestion">Nenhuma pergunta sorteada ainda. Clique em "Sortear Pergunta" para começar!</p>
+          <p id="currentAnswer" class="answer-tag" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M20 6L9 17l-5-5" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span id="answerText"></span>
+          </p>
+        </div>
+        <div class="btn-row">
+          <button class="panel-btn" id="nextQuestionBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M5 3l14 9-14 9V3z" fill="currentColor"/>
+            </svg>
+            Sortear Pergunta
+          </button>
+          <button class="panel-btn danger" id="endGameBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/>
+            </svg>
+            Encerrar Jogo
+          </button>
+          <button class="panel-btn new-game" id="newGameBtn" style="grid-column: span 2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" fill="currentColor"/>
+            </svg>
+            Novo Jogo
+          </button>
+        </div>
+      </div>
+
+      <!-- Tentativas de bingo -->
+      <div class="panel">
+        <div class="panel-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#f59e0b"/>
+          </svg>
+          Tentativas de Bingo
+        </div>
+        <div id="bingoAttempts" class="scroll-list">
+          <div class="empty-state">Nenhuma tentativa ainda</div>
+        </div>
+      </div>
+
+      <!-- Histórico -->
+      <div class="panel">
+        <div class="panel-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="#94a3b8" stroke-width="2"/>
+            <path d="M12 7v5l3 3" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Histórico de Perguntas
+        </div>
+        <div id="historyList" class="scroll-list">
+          <div class="empty-state">Nenhuma pergunta sorteada</div>
+        </div>
+      </div>
+
+      <!-- Ranking -->
+      <div class="panel">
+        <div class="panel-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#10b981"/>
+          </svg>
+          Ranking ao Vivo
+        </div>
+        <button class="panel-btn secondary" id="refreshRankingBtn" style="margin-bottom:0.85rem">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" fill="currentColor"/>
+          </svg>
+          Atualizar Ranking
+        </button>
+        <div id="rankingList" class="scroll-list">
+          <div class="empty-state">Carregando...</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="monitor.js"></script>
+</body>
+</html>
