@@ -27,8 +27,8 @@ async function loadInitialState() {
     const history = await historyRes.json();
     const answers = await answersRes.json();
 
-    askedQuestionIds = history.map(q => q.id);
-    markedIds = answers.filter(a => a.marked).map(a => a.question_id);
+    askedQuestionIds = history.map(q => Number(q.id));
+    markedIds = answers.filter(a => a.marked).map(a => Number(a.question_id));
 
     document.querySelectorAll('.bingo-cell').forEach(div => {
       const qid = parseInt(div.dataset.questionId);
@@ -48,7 +48,10 @@ async function loadInitialState() {
 
 // Verifica se há linha, coluna ou diagonal completa
 function checkBingoPossible() {
-  const grid = card.map(cell => markedIds.includes(cell.question_id) && askedQuestionIds.includes(cell.question_id));
+  const grid = card.map(cell => {
+    const qid = Number(cell.question_id);
+    return markedIds.map(Number).includes(qid) && askedQuestionIds.map(Number).includes(qid);
+  });
 
   for (let i = 0; i < 5; i++) {
     if ([0,1,2,3,4].every(j => grid[i * 5 + j])) return true; // linha
@@ -125,7 +128,7 @@ socket.on('game_reset', () => {
 
 // Recebe nova pergunta do monitor
 socket.on('question_received', (question) => {
-  askedQuestionIds.push(question.id);
+  askedQuestionIds.push(Number(question.id));
   currentQuestion.textContent = question.question;
   questionBox.classList.remove('hidden');
   waitingBox.classList.add('hidden');
