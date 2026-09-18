@@ -29,9 +29,10 @@ async function loadInitialState() {
   askedQuestionIds = history.map(q => q.id);
   markedIds = answers.filter(a => a.marked).map(a => a.question_id);
 
-  // Atualiza visual das células já marcadas
+  // Atualiza visual das células
   document.querySelectorAll('.bingo-cell').forEach(div => {
     const qid = parseInt(div.dataset.questionId);
+    if (askedQuestionIds.includes(qid)) div.classList.remove('locked');
     if (markedIds.includes(qid)) div.classList.add('marked');
   });
 
@@ -65,7 +66,7 @@ function updateBingoBtn() {
 // Renderiza cartela
 card.forEach((cell, index) => {
   const div = document.createElement('div');
-  div.classList.add('bingo-cell');
+  div.classList.add('bingo-cell', 'locked');
   div.dataset.questionId = cell.question_id;
   div.dataset.index = index;
 
@@ -122,6 +123,10 @@ socket.on('question_received', (question) => {
   waitingBox.classList.add('hidden');
   const num = document.getElementById('questionNum');
   if (num) num.textContent = `#${askedQuestionIds.length}`;
+  // Desbloqueia célula correspondente
+  document.querySelectorAll('.bingo-cell').forEach(div => {
+    if (parseInt(div.dataset.questionId) === question.id) div.classList.remove('locked');
+  });
   updateBingoBtn();
 });
 
