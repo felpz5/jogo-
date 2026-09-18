@@ -78,6 +78,7 @@ card.forEach((cell, index) => {
 
   div.addEventListener('click', () => {
     if (gameOver) return;
+    if (!askedQuestionIds.includes(cell.question_id)) return; // bloqueia se pergunta não foi sorteada
 
     if (markedIds.includes(cell.question_id)) {
       markedIds = markedIds.filter(id => id !== cell.question_id);
@@ -121,6 +122,7 @@ socket.on('question_received', (question) => {
   waitingBox.classList.add('hidden');
   const num = document.getElementById('questionNum');
   if (num) num.textContent = `#${askedQuestionIds.length}`;
+  updateBingoBtn();
 });
 
 // Resultado de tentativa de bingo
