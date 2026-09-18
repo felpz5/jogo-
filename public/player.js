@@ -17,9 +17,35 @@ let markedIds = [];
 let askedQuestionIds = [];
 let gameOver = false;
 
+// Carrega estado inicial: perguntas já sorteadas e células já marcadas
+async function loadInitialState() {
+  const [historyRes, answersRes] = await Promise.all([
+    fetch('/api/game/history'),
+    fetch(`/api/players/${player.id}/answers`)
+  ]);
+  const history = await historyRes.json();
+  const answers = await answersRes.json();
+
+  askedQuestionIds = history.map(q => q.id);
+  markedIds = answers.filter(a => a.marked).map(a => a.question_id);
+
+  // Atualiza visual das células já marcadas
+  document.querySelectorAll('.bingo-cell').forEach(div => {
+    const qid = parseInt(div.dataset.questionId);
+    if (markedIds.includes(qid)) div.classList.add('marked');
+  });
+
+  if (askedQuestionIds.length > 0) {
+    questionBox.classList.remove('hidden');
+    waitingBox.classList.add('hidden');
+  }
+
+  updateBingoBtn();
+}
+
 // Verifica se há linha, coluna ou diagonal completa
 function checkBingoPossible() {
-  const grid = card.map(cell => markedIds.includes(cell.question_id));
+  const grid = card.map(cell => markedIds.includes(cell.question_id) && askedQuestionIds.includes(cell.question_id));
 
   for (let i = 0; i < 5; i++) {
     if ([0,1,2,3,4].every(j => grid[i * 5 + j])) return true; // linha
@@ -78,6 +104,8 @@ card.forEach((cell, index) => {
 
   bingoCard.appendChild(div);
 });
+
+loadInitialState();
 
 // Jogo resetado — volta para login
 socket.on('game_reset', () => {

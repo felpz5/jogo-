@@ -79,6 +79,19 @@ router.get('/ranking/all', async (req, res) => {
   }
 });
 
+// Marcações do jogador
+router.get('/:id/answers', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT question_id, marked FROM player_answers WHERE player_id = $1`,
+      [req.params.id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao buscar respostas' });
+  }
+});
+
 // Resultado individual do aluno ao fim do jogo
 router.get('/:id/result', async (req, res) => {
   try {
