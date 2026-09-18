@@ -142,7 +142,8 @@ async function loadHistory() {
   const res = await fetch('/api/game/history');
   const history = await res.json();
   if (history.length > 0) {
-    history.forEach(q => addToHistory(q));
+    // Itera ao contrário para que o prepend mantenha a ordem correta
+    [...history].reverse().forEach(q => addToHistory(q));
     const statQ = document.getElementById('statQuestions');
     if (statQ) statQ.textContent = history.length;
     const counter = document.getElementById('questionCounter');

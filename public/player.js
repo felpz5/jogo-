@@ -19,28 +19,31 @@ let gameOver = false;
 
 // Carrega estado inicial: perguntas já sorteadas e células já marcadas
 async function loadInitialState() {
-  const [historyRes, answersRes] = await Promise.all([
-    fetch('/api/game/history'),
-    fetch(`/api/players/${player.id}/answers`)
-  ]);
-  const history = await historyRes.json();
-  const answers = await answersRes.json();
+  try {
+    const [historyRes, answersRes] = await Promise.all([
+      fetch('/api/game/history'),
+      fetch(`/api/players/${player.id}/answers`)
+    ]);
+    const history = await historyRes.json();
+    const answers = await answersRes.json();
 
-  askedQuestionIds = history.map(q => q.id);
-  markedIds = answers.filter(a => a.marked).map(a => a.question_id);
+    askedQuestionIds = history.map(q => q.id);
+    markedIds = answers.filter(a => a.marked).map(a => a.question_id);
 
-  // Atualiza visual das células já marcadas
-  document.querySelectorAll('.bingo-cell').forEach(div => {
-    const qid = parseInt(div.dataset.questionId);
-    if (markedIds.includes(qid)) div.classList.add('marked');
-  });
+    document.querySelectorAll('.bingo-cell').forEach(div => {
+      const qid = parseInt(div.dataset.questionId);
+      if (markedIds.includes(qid)) div.classList.add('marked');
+    });
 
-  if (askedQuestionIds.length > 0) {
-    questionBox.classList.remove('hidden');
-    waitingBox.classList.add('hidden');
+    if (askedQuestionIds.length > 0) {
+      questionBox.classList.remove('hidden');
+      waitingBox.classList.add('hidden');
+    }
+
+    updateBingoBtn();
+  } catch {
+    waitingBox.querySelector('.waiting-title').textContent = 'Erro ao carregar. Recarregue a página.';
   }
-
-  updateBingoBtn();
 }
 
 // Verifica se há linha, coluna ou diagonal completa
@@ -78,27 +81,33 @@ card.forEach((cell, index) => {
 
   div.addEventListener('click', () => {
     if (gameOver) return;
-    if (!askedQuestionIds.includes(cell.question_id)) return; // bloqueia se pergunta não foi sorteada
 
-    if (markedIds.includes(cell.question_id)) {
-      markedIds = markedIds.filter(id => id !== cell.question_id);
-      div.classList.remove('marked');
+    const marking = !markedIds.includes(cell.question_id);
+    const endpoint = marking ? '/api/game/mark' : '/api/game/unmark';
 
-      fetch('/api/game/unmark', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ player_id: player.id, question_id: cell.question_id })
-      });
-    } else {
+    if (marking) {
       markedIds.push(cell.question_id);
       div.classList.add('marked');
-
-      fetch('/api/game/mark', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ player_id: player.id, question_id: cell.question_id })
-      });
+    } else {
+      markedIds = markedIds.filter(id => id !== cell.question_id);
+      div.classList.remove('marked');
     }
+
+    fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ player_id: player.id, question_id: cell.question_id })
+    }).catch(() => {
+      // Reverte visual se falhar
+      if (marking) {
+        markedIds = markedIds.filter(id => id !== cell.question_id);
+        div.classList.remove('marked');
+      } else {
+        markedIds.push(cell.question_id);
+        div.classList.add('marked');
+      }
+      updateBingoBtn();
+    });
 
     updateBingoBtn();
   });
@@ -145,47 +154,52 @@ socket.on('game_finished', async (data) => {
   bingoMsg.textContent = `🏁 Jogo encerrado! Vencedor: ${data.winner_name}`;
   bingoMsg.className = 'bingo-msg finish-msg';
 
-  const res = await fetch(`/api/players/${player.id}/result`);
-  const results = await res.json();
+  try {
+    const [res, rankRes] = await Promise.all([
+      fetch(`/api/players/${player.id}/result`),
+      fetch('/api/players/ranking/all')
+    ]);
+    const results = await res.json();
+    const ranking = await rankRes.json();
 
-  const resultSection = document.getElementById('resultSection');
-  const resultList = document.getElementById('resultList');
-  resultSection.classList.remove('hidden');
+    const resultSection = document.getElementById('resultSection');
+    const resultList = document.getElementById('resultList');
+    resultSection.classList.remove('hidden');
 
-  results.forEach(r => {
-    const div = document.createElement('div');
-    div.classList.add('result-item', r.marked ? 'correct' : 'wrong');
-    const icon = r.marked
-      ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
-      : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/></svg>`;
-    div.innerHTML = `
-      <span class="result-icon">${icon}</span>
-      <span class="result-question">${r.question}</span>
-      <span class="result-answer">${r.answer}</span>
-    `;
-    resultList.appendChild(div);
-  });
+    results.forEach(r => {
+      const div = document.createElement('div');
+      div.classList.add('result-item', r.marked ? 'correct' : 'wrong');
+      const icon = r.marked
+        ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+        : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/></svg>`;
+      div.innerHTML = `
+        <span class="result-icon">${icon}</span>
+        <span class="result-question">${r.question}</span>
+        <span class="result-answer">${r.answer}</span>
+      `;
+      resultList.appendChild(div);
+    });
 
-  const rankRes = await fetch('/api/players/ranking/all');
-  const ranking = await rankRes.json();
+    const rankingSection = document.getElementById('rankingSection');
+    const rankingList = document.getElementById('rankingList');
+    rankingSection.classList.remove('hidden');
 
-  const rankingSection = document.getElementById('rankingSection');
-  const rankingList = document.getElementById('rankingList');
-  rankingSection.classList.remove('hidden');
-
-  ranking.forEach((p, i) => {
-    const div = document.createElement('div');
-    div.classList.add('ranking-item');
-    const medal = i === 0
-      ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#f59e0b"/></svg>`
-      : i === 1
-      ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#94a3b8"/></svg>`
-      : i === 2
-      ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#fb923c"/></svg>`
-      : `<span style="font-size:0.75rem;font-weight:700">${i + 1}.</span>`;
-    div.innerHTML = `<span>${medal} ${p.name}</span><span>${p.correct} acertos</span>`;
-    rankingList.appendChild(div);
-  });
+    ranking.forEach((p, i) => {
+      const div = document.createElement('div');
+      div.classList.add('ranking-item');
+      const medal = i === 0
+        ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#f59e0b"/></svg>`
+        : i === 1
+        ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#94a3b8"/></svg>`
+        : i === 2
+        ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#fb923c"/></svg>`
+        : `<span style="font-size:0.75rem;font-weight:700">${i + 1}.</span>`;
+      div.innerHTML = `<span>${medal} ${p.name}</span><span>${p.correct} acertos</span>`;
+      rankingList.appendChild(div);
+    });
+  } catch {
+    bingoMsg.textContent = `🏁 Jogo encerrado! Vencedor: ${data.winner_name} (erro ao carregar resultado)`;
+  }
 });
 
 // Botão BINGO — começa desabilitado
@@ -193,19 +207,28 @@ bingoBtn.disabled = true;
 
 bingoBtn.addEventListener('click', async () => {
   if (gameOver) return;
+  bingoBtn.disabled = true;
   bingoMsg.textContent = '⏳ Verificando...';
   bingoMsg.className = 'bingo-msg';
 
-  const res = await fetch('/api/game/bingo', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ player_id: player.id })
-  });
+  try {
+    const res = await fetch('/api/game/bingo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ player_id: player.id })
+    });
 
-  const data = await res.json();
-  socket.emit('bingo_attempt', { ...data, player_id: player.id });
+    const data = await res.json();
+    socket.emit('bingo_attempt', { ...data, player_id: player.id });
 
-  if (data.valid) {
-    socket.emit('game_over', { winner_name: player.name });
+    if (data.valid) {
+      socket.emit('game_over', { winner_name: player.name });
+    } else {
+      updateBingoBtn(); // reabilita se inválido
+    }
+  } catch {
+    bingoMsg.textContent = '❌ Erro ao verificar. Tente novamente.';
+    bingoMsg.className = 'bingo-msg error-msg';
+    updateBingoBtn();
   }
 });
